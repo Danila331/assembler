@@ -23,10 +23,29 @@ jobs:
         shell: cmd
         run: cl /TC /W3 /utf-8 a4\a4_1.c /Fe:a4_1.exe
 
-      - name: Run tests
+      - name: Build a4_2.c
+        shell: cmd
+        run: cl /TC /W3 /utf-8 a4\a4_2.c /Fe:a4_2.exe
+
+      - name: Run a4_1 tests
         shell: pwsh
         run: |
           $output = .\a4_1.exe
+          $output
+          $text = $output -join "`n"
+
+          if ($text -notmatch "Количество найденных слов: 5") {
+            throw "Expected 5 found words"
+          }
+
+          if ($text -notmatch "5 2 3 0 5 0 2 1 1 0") {
+            throw "Expected copied words in B"
+          }
+
+      - name: Run a4_2 tests
+        shell: pwsh
+        run: |
+          $output = .\a4_2.exe
           $output
           $text = $output -join "`n"
 
