@@ -1,0 +1,52 @@
+name: Build a5
+
+on:
+  push:
+    branches:
+      - "**"
+  workflow_dispatch:
+
+jobs:
+  build-a5:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure MSVC x86
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x86
+
+      - name: Build a5
+        shell: cmd
+        run: cl /TC /W3 /utf-8 a5\main.c /Fe:a5.exe
+
+      - name: Run a5 test
+        shell: pwsh
+        run: |
+          $output = .\a5.exe
+          $output
+          $text = $output -join "`n"
+
+          $expected = @(
+            "0x11",
+            "0x6F",
+            "0x71",
+            "0x3D",
+            "0x0F",
+            "0x7B",
+            "0x0011",
+            "0x006F",
+            "0x1271",
+            "0xAB37",
+            "0x000F",
+            "0x557B"
+          )
+
+          foreach ($value in $expected) {
+            if ($text -notmatch [regex]::Escape($value)) {
+              throw "Expected output to contain $value"
+            }
+          }
